@@ -1,4 +1,5 @@
 import AuthWrapper from "@/components/auth/auth-wrapper";
+import RegisterForm from "@/components/auth/register-form";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -76,91 +77,10 @@ export default function RegisterPage() {
           </div>
 
           {/* FORM */}
-          <form className="_social_registration_form">
-
-            <div className="row g-3">
-
-              {/* First Name */}
-              <div className="col-12 col-md-6">
-                <label className="_social_registration_label mb-1">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  className="form-control _social_registration_input"
-                />
-              </div>
-
-              {/* Last Name */}
-              <div className="col-12 col-md-6">
-                <label className="_social_registration_label mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  className="form-control _social_registration_input"
-                />
-              </div>
-
-              {/* Email */}
-              <div className="col-12">
-                <label className="_social_registration_label mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="form-control _social_registration_input"
-                />
-              </div>
-
-              {/* Password */}
-              <div className="col-12 col-md-6">
-                <label className="_social_registration_label mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  className="form-control _social_registration_input"
-                />
-              </div>
-
-              {/* Confirm Password */}
-              <div className="col-12 col-md-6">
-                <label className="_social_registration_label mb-1">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  className="form-control _social_registration_input"
-                />
-              </div>
-            </div>
-
-            {/* Terms */}
-            <div className="form-check mt-3">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="terms"
-              />
-              <label className="form-check-label" htmlFor="terms">
-                I agree to terms & conditions
-              </label>
-            </div>
-
-            {/* Submit */}
-            <div className="mt-4 mb-5">
-              <button
-                type="submit"
-                className="_social_registration_form_btn_link _btn1 w-100"
-              >
-                Register
-              </button>
-            </div>
-          </form>
+          <RegisterForm />
 
           {/* Footer */}
-          <div className="_social_registration_bottom_txt text-center">
+          <div className="_social_registration_bottom_txt text-center mt-5">
             <p className="_social_registration_bottom_txt_para">
               Already have an account?{" "}
               <Link href="/login">Login</Link>
