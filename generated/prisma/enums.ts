@@ -9,7 +9,17 @@
 * 🟢 You can import this file directly.
 */
 
+export const Visibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE'
+} as const
+
+export type Visibility = (typeof Visibility)[keyof typeof Visibility]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const TargetType = {
+  POST: 'POST',
+  COMMENT: 'COMMENT'
+} as const
+
+export type TargetType = (typeof TargetType)[keyof typeof TargetType]

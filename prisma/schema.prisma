@@ -11,3 +11,72 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum TargetType {
+  POST
+  COMMENT
+}
+
+model User {
+  id           String    @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  posts        Post[]
+  comments     Comment[]
+  likes        Like[]
+}
+
+model Post {
+  id          String      @id @default(cuid())
+  authorId    String
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content     String
+  imageUrl    String?
+  visibility  Visibility  @default(PUBLIC)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  comments    Comment[]
+
+  @@index([createdAt(sort: Desc)])
+  @@index([authorId])
+  @@index([visibility, createdAt(sort: Desc)])
+}
+
+model Comment {
+  id               String      @id @default(cuid())
+  postId           String
+  post             Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId         String
+  author           User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentCommentId  String?
+  parent           Comment?    @relation("Replies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies          Comment[]   @relation("Replies")
+  content          String
+  createdAt        DateTime    @default(now())
+
+  @@index([postId])
+  @@index([parentCommentId])
+}
+
+model Like {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetType  TargetType
+  targetId    String
+  createdAt   DateTime    @default(now())
+
+  @@unique([userId, targetType, targetId])
+  @@index([targetType, targetId])
+}
