@@ -221,6 +221,10 @@ export default function RegisterForm() {
                 type="submit"
                 disabled={isSubmitting}
                 className="_social_registration_form_btn_link _btn1 w-100 mt-4 d-flex align-items-center justify-content-center gap-2"
+                style={{
+                    padding: "12px 24px",
+                    whiteSpace: "nowrap",
+                }}
             >
                 {isSubmitting ? (
                     <>
@@ -229,7 +233,7 @@ export default function RegisterForm() {
                             role="status"
                             aria-hidden="true"
                         />
-                        <span>Creating...</span>
+                        <span>Creating account...</span>
                     </>
                 ) : (
                     "Register"
