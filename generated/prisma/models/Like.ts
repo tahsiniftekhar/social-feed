@@ -27,24 +27,24 @@ export type AggregateLike = {
 export type LikeMinAggregateOutputType = {
   id: string | null
   userId: string | null
-  targetType: $Enums.TargetType | null
-  targetId: string | null
+  postId: string | null
+  commentId: string | null
   createdAt: Date | null
 }
 
 export type LikeMaxAggregateOutputType = {
   id: string | null
   userId: string | null
-  targetType: $Enums.TargetType | null
-  targetId: string | null
+  postId: string | null
+  commentId: string | null
   createdAt: Date | null
 }
 
 export type LikeCountAggregateOutputType = {
   id: number
   userId: number
-  targetType: number
-  targetId: number
+  postId: number
+  commentId: number
   createdAt: number
   _all: number
 }
@@ -53,24 +53,24 @@ export type LikeCountAggregateOutputType = {
 export type LikeMinAggregateInputType = {
   id?: true
   userId?: true
-  targetType?: true
-  targetId?: true
+  postId?: true
+  commentId?: true
   createdAt?: true
 }
 
 export type LikeMaxAggregateInputType = {
   id?: true
   userId?: true
-  targetType?: true
-  targetId?: true
+  postId?: true
+  commentId?: true
   createdAt?: true
 }
 
 export type LikeCountAggregateInputType = {
   id?: true
   userId?: true
-  targetType?: true
-  targetId?: true
+  postId?: true
+  commentId?: true
   createdAt?: true
   _all?: true
 }
@@ -150,8 +150,8 @@ export type LikeGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type LikeGroupByOutputType = {
   id: string
   userId: string
-  targetType: $Enums.TargetType
-  targetId: string
+  postId: string | null
+  commentId: string | null
   createdAt: Date
   _count: LikeCountAggregateOutputType | null
   _min: LikeMinAggregateOutputType | null
@@ -179,39 +179,46 @@ export type LikeWhereInput = {
   NOT?: Prisma.LikeWhereInput | Prisma.LikeWhereInput[]
   id?: Prisma.StringFilter<"Like"> | string
   userId?: Prisma.StringFilter<"Like"> | string
-  targetType?: Prisma.EnumTargetTypeFilter<"Like"> | $Enums.TargetType
-  targetId?: Prisma.StringFilter<"Like"> | string
+  postId?: Prisma.StringNullableFilter<"Like"> | string | null
+  commentId?: Prisma.StringNullableFilter<"Like"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Like"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  post?: Prisma.XOR<Prisma.PostNullableScalarRelationFilter, Prisma.PostWhereInput> | null
+  comment?: Prisma.XOR<Prisma.CommentNullableScalarRelationFilter, Prisma.CommentWhereInput> | null
 }
 
 export type LikeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  targetType?: Prisma.SortOrder
-  targetId?: Prisma.SortOrder
+  postId?: Prisma.SortOrderInput | Prisma.SortOrder
+  commentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  post?: Prisma.PostOrderByWithRelationInput
+  comment?: Prisma.CommentOrderByWithRelationInput
 }
 
 export type LikeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId_targetType_targetId?: Prisma.LikeUserIdTargetTypeTargetIdCompoundUniqueInput
+  userId_postId?: Prisma.LikeUserIdPostIdCompoundUniqueInput
+  userId_commentId?: Prisma.LikeUserIdCommentIdCompoundUniqueInput
   AND?: Prisma.LikeWhereInput | Prisma.LikeWhereInput[]
   OR?: Prisma.LikeWhereInput[]
   NOT?: Prisma.LikeWhereInput | Prisma.LikeWhereInput[]
   userId?: Prisma.StringFilter<"Like"> | string
-  targetType?: Prisma.EnumTargetTypeFilter<"Like"> | $Enums.TargetType
-  targetId?: Prisma.StringFilter<"Like"> | string
+  postId?: Prisma.StringNullableFilter<"Like"> | string | null
+  commentId?: Prisma.StringNullableFilter<"Like"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Like"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "userId_targetType_targetId">
+  post?: Prisma.XOR<Prisma.PostNullableScalarRelationFilter, Prisma.PostWhereInput> | null
+  comment?: Prisma.XOR<Prisma.CommentNullableScalarRelationFilter, Prisma.CommentWhereInput> | null
+}, "id" | "userId_postId" | "userId_commentId">
 
 export type LikeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  targetType?: Prisma.SortOrder
-  targetId?: Prisma.SortOrder
+  postId?: Prisma.SortOrderInput | Prisma.SortOrder
+  commentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.LikeCountOrderByAggregateInput
   _max?: Prisma.LikeMaxOrderByAggregateInput
@@ -224,63 +231,61 @@ export type LikeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.LikeScalarWhereWithAggregatesInput | Prisma.LikeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Like"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Like"> | string
-  targetType?: Prisma.EnumTargetTypeWithAggregatesFilter<"Like"> | $Enums.TargetType
-  targetId?: Prisma.StringWithAggregatesFilter<"Like"> | string
+  postId?: Prisma.StringNullableWithAggregatesFilter<"Like"> | string | null
+  commentId?: Prisma.StringNullableWithAggregatesFilter<"Like"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Like"> | Date | string
 }
 
 export type LikeCreateInput = {
   id?: string
-  targetType: $Enums.TargetType
-  targetId: string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutLikesInput
+  post?: Prisma.PostCreateNestedOneWithoutLikesInput
+  comment?: Prisma.CommentCreateNestedOneWithoutLikesInput
 }
 
 export type LikeUncheckedCreateInput = {
   id?: string
   userId: string
-  targetType: $Enums.TargetType
-  targetId: string
+  postId?: string | null
+  commentId?: string | null
   createdAt?: Date | string
 }
 
 export type LikeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutLikesNestedInput
+  post?: Prisma.PostUpdateOneWithoutLikesNestedInput
+  comment?: Prisma.CommentUpdateOneWithoutLikesNestedInput
 }
 
 export type LikeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LikeCreateManyInput = {
   id?: string
   userId: string
-  targetType: $Enums.TargetType
-  targetId: string
+  postId?: string | null
+  commentId?: string | null
   createdAt?: Date | string
 }
 
 export type LikeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LikeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -294,33 +299,37 @@ export type LikeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type LikeUserIdTargetTypeTargetIdCompoundUniqueInput = {
+export type LikeUserIdPostIdCompoundUniqueInput = {
   userId: string
-  targetType: $Enums.TargetType
-  targetId: string
+  postId: string
+}
+
+export type LikeUserIdCommentIdCompoundUniqueInput = {
+  userId: string
+  commentId: string
 }
 
 export type LikeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  targetType?: Prisma.SortOrder
-  targetId?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type LikeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  targetType?: Prisma.SortOrder
-  targetId?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type LikeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  targetType?: Prisma.SortOrder
-  targetId?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -366,21 +375,101 @@ export type LikeUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.LikeScalarWhereInput | Prisma.LikeScalarWhereInput[]
 }
 
-export type EnumTargetTypeFieldUpdateOperationsInput = {
-  set?: $Enums.TargetType
+export type LikeCreateNestedManyWithoutPostInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutPostInput, Prisma.LikeUncheckedCreateWithoutPostInput> | Prisma.LikeCreateWithoutPostInput[] | Prisma.LikeUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutPostInput | Prisma.LikeCreateOrConnectWithoutPostInput[]
+  createMany?: Prisma.LikeCreateManyPostInputEnvelope
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+}
+
+export type LikeUncheckedCreateNestedManyWithoutPostInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutPostInput, Prisma.LikeUncheckedCreateWithoutPostInput> | Prisma.LikeCreateWithoutPostInput[] | Prisma.LikeUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutPostInput | Prisma.LikeCreateOrConnectWithoutPostInput[]
+  createMany?: Prisma.LikeCreateManyPostInputEnvelope
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+}
+
+export type LikeUpdateManyWithoutPostNestedInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutPostInput, Prisma.LikeUncheckedCreateWithoutPostInput> | Prisma.LikeCreateWithoutPostInput[] | Prisma.LikeUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutPostInput | Prisma.LikeCreateOrConnectWithoutPostInput[]
+  upsert?: Prisma.LikeUpsertWithWhereUniqueWithoutPostInput | Prisma.LikeUpsertWithWhereUniqueWithoutPostInput[]
+  createMany?: Prisma.LikeCreateManyPostInputEnvelope
+  set?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  disconnect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  delete?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  update?: Prisma.LikeUpdateWithWhereUniqueWithoutPostInput | Prisma.LikeUpdateWithWhereUniqueWithoutPostInput[]
+  updateMany?: Prisma.LikeUpdateManyWithWhereWithoutPostInput | Prisma.LikeUpdateManyWithWhereWithoutPostInput[]
+  deleteMany?: Prisma.LikeScalarWhereInput | Prisma.LikeScalarWhereInput[]
+}
+
+export type LikeUncheckedUpdateManyWithoutPostNestedInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutPostInput, Prisma.LikeUncheckedCreateWithoutPostInput> | Prisma.LikeCreateWithoutPostInput[] | Prisma.LikeUncheckedCreateWithoutPostInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutPostInput | Prisma.LikeCreateOrConnectWithoutPostInput[]
+  upsert?: Prisma.LikeUpsertWithWhereUniqueWithoutPostInput | Prisma.LikeUpsertWithWhereUniqueWithoutPostInput[]
+  createMany?: Prisma.LikeCreateManyPostInputEnvelope
+  set?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  disconnect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  delete?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  update?: Prisma.LikeUpdateWithWhereUniqueWithoutPostInput | Prisma.LikeUpdateWithWhereUniqueWithoutPostInput[]
+  updateMany?: Prisma.LikeUpdateManyWithWhereWithoutPostInput | Prisma.LikeUpdateManyWithWhereWithoutPostInput[]
+  deleteMany?: Prisma.LikeScalarWhereInput | Prisma.LikeScalarWhereInput[]
+}
+
+export type LikeCreateNestedManyWithoutCommentInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutCommentInput, Prisma.LikeUncheckedCreateWithoutCommentInput> | Prisma.LikeCreateWithoutCommentInput[] | Prisma.LikeUncheckedCreateWithoutCommentInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutCommentInput | Prisma.LikeCreateOrConnectWithoutCommentInput[]
+  createMany?: Prisma.LikeCreateManyCommentInputEnvelope
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+}
+
+export type LikeUncheckedCreateNestedManyWithoutCommentInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutCommentInput, Prisma.LikeUncheckedCreateWithoutCommentInput> | Prisma.LikeCreateWithoutCommentInput[] | Prisma.LikeUncheckedCreateWithoutCommentInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutCommentInput | Prisma.LikeCreateOrConnectWithoutCommentInput[]
+  createMany?: Prisma.LikeCreateManyCommentInputEnvelope
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+}
+
+export type LikeUpdateManyWithoutCommentNestedInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutCommentInput, Prisma.LikeUncheckedCreateWithoutCommentInput> | Prisma.LikeCreateWithoutCommentInput[] | Prisma.LikeUncheckedCreateWithoutCommentInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutCommentInput | Prisma.LikeCreateOrConnectWithoutCommentInput[]
+  upsert?: Prisma.LikeUpsertWithWhereUniqueWithoutCommentInput | Prisma.LikeUpsertWithWhereUniqueWithoutCommentInput[]
+  createMany?: Prisma.LikeCreateManyCommentInputEnvelope
+  set?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  disconnect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  delete?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  update?: Prisma.LikeUpdateWithWhereUniqueWithoutCommentInput | Prisma.LikeUpdateWithWhereUniqueWithoutCommentInput[]
+  updateMany?: Prisma.LikeUpdateManyWithWhereWithoutCommentInput | Prisma.LikeUpdateManyWithWhereWithoutCommentInput[]
+  deleteMany?: Prisma.LikeScalarWhereInput | Prisma.LikeScalarWhereInput[]
+}
+
+export type LikeUncheckedUpdateManyWithoutCommentNestedInput = {
+  create?: Prisma.XOR<Prisma.LikeCreateWithoutCommentInput, Prisma.LikeUncheckedCreateWithoutCommentInput> | Prisma.LikeCreateWithoutCommentInput[] | Prisma.LikeUncheckedCreateWithoutCommentInput[]
+  connectOrCreate?: Prisma.LikeCreateOrConnectWithoutCommentInput | Prisma.LikeCreateOrConnectWithoutCommentInput[]
+  upsert?: Prisma.LikeUpsertWithWhereUniqueWithoutCommentInput | Prisma.LikeUpsertWithWhereUniqueWithoutCommentInput[]
+  createMany?: Prisma.LikeCreateManyCommentInputEnvelope
+  set?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  disconnect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  delete?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  connect?: Prisma.LikeWhereUniqueInput | Prisma.LikeWhereUniqueInput[]
+  update?: Prisma.LikeUpdateWithWhereUniqueWithoutCommentInput | Prisma.LikeUpdateWithWhereUniqueWithoutCommentInput[]
+  updateMany?: Prisma.LikeUpdateManyWithWhereWithoutCommentInput | Prisma.LikeUpdateManyWithWhereWithoutCommentInput[]
+  deleteMany?: Prisma.LikeScalarWhereInput | Prisma.LikeScalarWhereInput[]
 }
 
 export type LikeCreateWithoutUserInput = {
   id?: string
-  targetType: $Enums.TargetType
-  targetId: string
   createdAt?: Date | string
+  post?: Prisma.PostCreateNestedOneWithoutLikesInput
+  comment?: Prisma.CommentCreateNestedOneWithoutLikesInput
 }
 
 export type LikeUncheckedCreateWithoutUserInput = {
   id?: string
-  targetType: $Enums.TargetType
-  targetId: string
+  postId?: string | null
+  commentId?: string | null
   createdAt?: Date | string
 }
 
@@ -416,36 +505,172 @@ export type LikeScalarWhereInput = {
   NOT?: Prisma.LikeScalarWhereInput | Prisma.LikeScalarWhereInput[]
   id?: Prisma.StringFilter<"Like"> | string
   userId?: Prisma.StringFilter<"Like"> | string
-  targetType?: Prisma.EnumTargetTypeFilter<"Like"> | $Enums.TargetType
-  targetId?: Prisma.StringFilter<"Like"> | string
+  postId?: Prisma.StringNullableFilter<"Like"> | string | null
+  commentId?: Prisma.StringNullableFilter<"Like"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Like"> | Date | string
+}
+
+export type LikeCreateWithoutPostInput = {
+  id?: string
+  createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutLikesInput
+  comment?: Prisma.CommentCreateNestedOneWithoutLikesInput
+}
+
+export type LikeUncheckedCreateWithoutPostInput = {
+  id?: string
+  userId: string
+  commentId?: string | null
+  createdAt?: Date | string
+}
+
+export type LikeCreateOrConnectWithoutPostInput = {
+  where: Prisma.LikeWhereUniqueInput
+  create: Prisma.XOR<Prisma.LikeCreateWithoutPostInput, Prisma.LikeUncheckedCreateWithoutPostInput>
+}
+
+export type LikeCreateManyPostInputEnvelope = {
+  data: Prisma.LikeCreateManyPostInput | Prisma.LikeCreateManyPostInput[]
+  skipDuplicates?: boolean
+}
+
+export type LikeUpsertWithWhereUniqueWithoutPostInput = {
+  where: Prisma.LikeWhereUniqueInput
+  update: Prisma.XOR<Prisma.LikeUpdateWithoutPostInput, Prisma.LikeUncheckedUpdateWithoutPostInput>
+  create: Prisma.XOR<Prisma.LikeCreateWithoutPostInput, Prisma.LikeUncheckedCreateWithoutPostInput>
+}
+
+export type LikeUpdateWithWhereUniqueWithoutPostInput = {
+  where: Prisma.LikeWhereUniqueInput
+  data: Prisma.XOR<Prisma.LikeUpdateWithoutPostInput, Prisma.LikeUncheckedUpdateWithoutPostInput>
+}
+
+export type LikeUpdateManyWithWhereWithoutPostInput = {
+  where: Prisma.LikeScalarWhereInput
+  data: Prisma.XOR<Prisma.LikeUpdateManyMutationInput, Prisma.LikeUncheckedUpdateManyWithoutPostInput>
+}
+
+export type LikeCreateWithoutCommentInput = {
+  id?: string
+  createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutLikesInput
+  post?: Prisma.PostCreateNestedOneWithoutLikesInput
+}
+
+export type LikeUncheckedCreateWithoutCommentInput = {
+  id?: string
+  userId: string
+  postId?: string | null
+  createdAt?: Date | string
+}
+
+export type LikeCreateOrConnectWithoutCommentInput = {
+  where: Prisma.LikeWhereUniqueInput
+  create: Prisma.XOR<Prisma.LikeCreateWithoutCommentInput, Prisma.LikeUncheckedCreateWithoutCommentInput>
+}
+
+export type LikeCreateManyCommentInputEnvelope = {
+  data: Prisma.LikeCreateManyCommentInput | Prisma.LikeCreateManyCommentInput[]
+  skipDuplicates?: boolean
+}
+
+export type LikeUpsertWithWhereUniqueWithoutCommentInput = {
+  where: Prisma.LikeWhereUniqueInput
+  update: Prisma.XOR<Prisma.LikeUpdateWithoutCommentInput, Prisma.LikeUncheckedUpdateWithoutCommentInput>
+  create: Prisma.XOR<Prisma.LikeCreateWithoutCommentInput, Prisma.LikeUncheckedCreateWithoutCommentInput>
+}
+
+export type LikeUpdateWithWhereUniqueWithoutCommentInput = {
+  where: Prisma.LikeWhereUniqueInput
+  data: Prisma.XOR<Prisma.LikeUpdateWithoutCommentInput, Prisma.LikeUncheckedUpdateWithoutCommentInput>
+}
+
+export type LikeUpdateManyWithWhereWithoutCommentInput = {
+  where: Prisma.LikeScalarWhereInput
+  data: Prisma.XOR<Prisma.LikeUpdateManyMutationInput, Prisma.LikeUncheckedUpdateManyWithoutCommentInput>
 }
 
 export type LikeCreateManyUserInput = {
   id?: string
-  targetType: $Enums.TargetType
-  targetId: string
+  postId?: string | null
+  commentId?: string | null
   createdAt?: Date | string
 }
 
 export type LikeUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  post?: Prisma.PostUpdateOneWithoutLikesNestedInput
+  comment?: Prisma.CommentUpdateOneWithoutLikesNestedInput
 }
 
 export type LikeUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LikeUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  targetId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LikeCreateManyPostInput = {
+  id?: string
+  userId: string
+  commentId?: string | null
+  createdAt?: Date | string
+}
+
+export type LikeUpdateWithoutPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutLikesNestedInput
+  comment?: Prisma.CommentUpdateOneWithoutLikesNestedInput
+}
+
+export type LikeUncheckedUpdateWithoutPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LikeUncheckedUpdateManyWithoutPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LikeCreateManyCommentInput = {
+  id?: string
+  userId: string
+  postId?: string | null
+  createdAt?: Date | string
+}
+
+export type LikeUpdateWithoutCommentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutLikesNestedInput
+  post?: Prisma.PostUpdateOneWithoutLikesNestedInput
+}
+
+export type LikeUncheckedUpdateWithoutCommentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LikeUncheckedUpdateManyWithoutCommentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -454,59 +679,73 @@ export type LikeUncheckedUpdateManyWithoutUserInput = {
 export type LikeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  targetType?: boolean
-  targetId?: boolean
+  postId?: boolean
+  commentId?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  post?: boolean | Prisma.Like$postArgs<ExtArgs>
+  comment?: boolean | Prisma.Like$commentArgs<ExtArgs>
 }, ExtArgs["result"]["like"]>
 
 export type LikeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  targetType?: boolean
-  targetId?: boolean
+  postId?: boolean
+  commentId?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  post?: boolean | Prisma.Like$postArgs<ExtArgs>
+  comment?: boolean | Prisma.Like$commentArgs<ExtArgs>
 }, ExtArgs["result"]["like"]>
 
 export type LikeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  targetType?: boolean
-  targetId?: boolean
+  postId?: boolean
+  commentId?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  post?: boolean | Prisma.Like$postArgs<ExtArgs>
+  comment?: boolean | Prisma.Like$commentArgs<ExtArgs>
 }, ExtArgs["result"]["like"]>
 
 export type LikeSelectScalar = {
   id?: boolean
   userId?: boolean
-  targetType?: boolean
-  targetId?: boolean
+  postId?: boolean
+  commentId?: boolean
   createdAt?: boolean
 }
 
-export type LikeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "targetType" | "targetId" | "createdAt", ExtArgs["result"]["like"]>
+export type LikeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "postId" | "commentId" | "createdAt", ExtArgs["result"]["like"]>
 export type LikeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  post?: boolean | Prisma.Like$postArgs<ExtArgs>
+  comment?: boolean | Prisma.Like$commentArgs<ExtArgs>
 }
 export type LikeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  post?: boolean | Prisma.Like$postArgs<ExtArgs>
+  comment?: boolean | Prisma.Like$commentArgs<ExtArgs>
 }
 export type LikeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  post?: boolean | Prisma.Like$postArgs<ExtArgs>
+  comment?: boolean | Prisma.Like$commentArgs<ExtArgs>
 }
 
 export type $LikePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Like"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    post: Prisma.$PostPayload<ExtArgs> | null
+    comment: Prisma.$CommentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
-    targetType: $Enums.TargetType
-    targetId: string
+    postId: string | null
+    commentId: string | null
     createdAt: Date
   }, ExtArgs["result"]["like"]>
   composites: {}
@@ -903,6 +1142,8 @@ readonly fields: LikeFieldRefs;
 export interface Prisma__LikeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  post<T extends Prisma.Like$postArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Like$postArgs<ExtArgs>>): Prisma.Prisma__PostClient<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  comment<T extends Prisma.Like$commentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Like$commentArgs<ExtArgs>>): Prisma.Prisma__CommentClient<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -934,8 +1175,8 @@ export interface Prisma__LikeClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface LikeFieldRefs {
   readonly id: Prisma.FieldRef<"Like", 'String'>
   readonly userId: Prisma.FieldRef<"Like", 'String'>
-  readonly targetType: Prisma.FieldRef<"Like", 'TargetType'>
-  readonly targetId: Prisma.FieldRef<"Like", 'String'>
+  readonly postId: Prisma.FieldRef<"Like", 'String'>
+  readonly commentId: Prisma.FieldRef<"Like", 'String'>
   readonly createdAt: Prisma.FieldRef<"Like", 'DateTime'>
 }
     
@@ -1335,6 +1576,44 @@ export type LikeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Likes to delete.
    */
   limit?: number
+}
+
+/**
+ * Like.post
+ */
+export type Like$postArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Post
+   */
+  select?: Prisma.PostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Post
+   */
+  omit?: Prisma.PostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PostInclude<ExtArgs> | null
+  where?: Prisma.PostWhereInput
+}
+
+/**
+ * Like.comment
+ */
+export type Like$commentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Comment
+   */
+  select?: Prisma.CommentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Comment
+   */
+  omit?: Prisma.CommentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommentInclude<ExtArgs> | null
+  where?: Prisma.CommentWhereInput
 }
 
 /**

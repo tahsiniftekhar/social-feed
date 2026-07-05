@@ -91,6 +91,7 @@ export const PostScalarFieldEnum = {
   authorId: 'authorId',
   content: 'content',
   imageUrl: 'imageUrl',
+  imagePublicId: 'imagePublicId',
   visibility: 'visibility',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -114,8 +115,8 @@ export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeo
 export const LikeScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  targetType: 'targetType',
-  targetId: 'targetId',
+  postId: 'postId',
+  commentId: 'commentId',
   createdAt: 'createdAt'
 } as const
 

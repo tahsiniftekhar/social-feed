@@ -48,6 +48,21 @@ export const LoginSchema = z.object({
 });
 
 /**
+ * Create Post Validation
+ */
+export const CreatePostSchema = z.object({
+  content: z.string().trim().min(1, 'Post content is required').max(5000, 'Post is too long'),
+
+  imageUrl: z.url().optional(),
+
+  imagePublicId: z.string().optional(),
+
+  visibility: z
+    .enum(["PUBLIC", "PRIVATE"])
+    .default("PUBLIC"),
+});
+
+/**
  * Types
  */
 
@@ -55,12 +70,4 @@ export type RegisterInput = z.infer<typeof RegisterSchema>;
 
 export type LoginInput = z.infer<typeof LoginSchema>;
 
-const result = RegisterSchema.safeParse({
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'John@gmail.com',
-  password: 'Password123',
-  confirmPassword: 'Password123',
-});
-
-console.log(result.success);
+export type CreatePostInput = z.infer<typeof CreatePostSchema>;

@@ -760,6 +760,7 @@ export const PostScalarFieldEnum = {
   authorId: 'authorId',
   content: 'content',
   imageUrl: 'imageUrl',
+  imagePublicId: 'imagePublicId',
   visibility: 'visibility',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -783,8 +784,8 @@ export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeo
 export const LikeScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  targetType: 'targetType',
-  targetId: 'targetId',
+  postId: 'postId',
+  commentId: 'commentId',
   createdAt: 'createdAt'
 } as const
 
@@ -860,20 +861,6 @@ export type EnumVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'Visibility[]'
  */
 export type ListEnumVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Visibility[]'>
-    
-
-
-/**
- * Reference to a field of type 'TargetType'
- */
-export type EnumTargetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TargetType'>
-    
-
-
-/**
- * Reference to a field of type 'TargetType[]'
- */
-export type ListEnumTargetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TargetType[]'>
     
 
 

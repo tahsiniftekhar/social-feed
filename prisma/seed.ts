@@ -2,35 +2,39 @@ import "dotenv/config";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Visibility, TargetType } from "../generated/prisma/client";
+import { PrismaClient, Visibility } from "../generated/prisma/client";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// Fixed seed so the dataset is reproducible across runs / teammates
 faker.seed(42);
 
-const DEFAULT_PASSWORD = "Passw0rd!"; // same for every seeded user — for demo/login convenience only
+const DEFAULT_PASSWORD = "Passw0rd!";
 
 async function main() {
   console.log("Clearing existing data...");
+
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.post.deleteMany();
   await prisma.user.deleteMany();
 
   console.log("Creating users...");
+
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
 
   const users = await Promise.all(
-    Array.from({ length: 8 }).map(async () => {
+    Array.from({ length: 8 }).map(() => {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
+
       return prisma.user.create({
         data: {
           firstName,
           lastName,
-          email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+          email: faker.internet
+            .email({ firstName, lastName })
+            .toLowerCase(),
           passwordHash,
         },
       });
@@ -38,33 +42,53 @@ async function main() {
   );
 
   console.log("Creating posts...");
-  const posts = [];
+
+  const posts: any[] = [];
+
   for (const author of users) {
     const postCount = faker.number.int({ min: 2, max: 4 });
+
     for (let i = 0; i < postCount; i++) {
+      const hasImage = faker.datatype.boolean({ probability: 0.6 });
+      const createdAt = faker.date.recent({ days: 30 });
+
       const post = await prisma.post.create({
         data: {
           authorId: author.id,
           content: faker.lorem.paragraph({ min: 1, max: 3 }),
-          imageUrl: faker.datatype.boolean({ probability: 0.6 })
+          imageUrl: hasImage
             ? faker.image.urlPicsumPhotos({ width: 800, height: 600 })
             : null,
-          visibility: faker.datatype.boolean({ probability: 0.75 })
+          imagePublicId: hasImage ? faker.string.uuid() : null,
+          visibility: faker.datatype.boolean({ probability: 0.8 })
             ? Visibility.PUBLIC
             : Visibility.PRIVATE,
-          createdAt: faker.date.recent({ days: 30 }),
+          createdAt,
         },
       });
+
+      // synthetic engagement score (viral simulation)
+      (post as any)._score =
+        faker.number.float({ min: 0, max: 1 }) *
+        (Date.now() - createdAt.getTime());
+
       posts.push(post);
     }
   }
 
-  console.log("Creating comments and replies...");
-  const comments = [];
+  // Sort by "virality"
+  posts.sort((a, b) => (b as any)._score - (a as any)._score);
+
+  console.log("Creating comments...");
+
+  const comments: any[] = [];
+
   for (const post of posts) {
     const commentCount = faker.number.int({ min: 0, max: 4 });
+
     for (let i = 0; i < commentCount; i++) {
       const commenter = faker.helpers.arrayElement(users);
+
       const comment = await prisma.comment.create({
         data: {
           postId: post.id,
@@ -73,13 +97,16 @@ async function main() {
           createdAt: faker.date.recent({ days: 20 }),
         },
       });
+
       comments.push(comment);
 
-      // ~40% chance a comment gets 1-2 replies
+      // replies
       if (faker.datatype.boolean({ probability: 0.4 })) {
         const replyCount = faker.number.int({ min: 1, max: 2 });
+
         for (let r = 0; r < replyCount; r++) {
           const replier = faker.helpers.arrayElement(users);
+
           const reply = await prisma.comment.create({
             data: {
               postId: post.id,
@@ -89,61 +116,95 @@ async function main() {
               createdAt: faker.date.recent({ days: 15 }),
             },
           });
+
           comments.push(reply);
         }
       }
     }
   }
 
-  console.log("Creating likes (posts and comments/replies)...");
-  const likeKeys = new Set<string>(); // tracks userId:targetType:targetId to avoid unique constraint violations
+  console.log("Creating likes (realistic engagement)...");
+
   const likeData: {
     userId: string;
-    targetType: TargetType;
-    targetId: string;
+    postId?: string;
+    commentId?: string;
   }[] = [];
 
-  function tryAddLike(userId: string, targetType: TargetType, targetId: string) {
-    const key = `${userId}:${targetType}:${targetId}`;
-    if (likeKeys.has(key)) return;
-    likeKeys.add(key);
-    likeData.push({ userId, targetType, targetId });
-  }
+  const likeSet = new Set<string>();
 
-  // Public posts get likes from a random subset of users; private posts only from the author (realistic — others can't see them anyway)
+  const addLike = (userId: string, postId?: string, commentId?: string) => {
+    const key = postId
+      ? `p:${userId}:${postId}`
+      : `c:${userId}:${commentId}`;
+
+    if (likeSet.has(key)) return;
+
+    likeSet.add(key);
+    likeData.push({ userId, postId, commentId });
+  };
+
+  // Active users (simulate real-world behavior)
+  const activeUsers = faker.helpers.arrayElements(users, 3);
+
+  // POST likes (viral bias)
   for (const post of posts) {
-    const eligibleLikers =
+    const score = (post as any)._score;
+
+    const likeCount =
+      score > 0.7
+        ? faker.number.int({ min: 5, max: 12 })
+        : score > 0.3
+        ? faker.number.int({ min: 2, max: 6 })
+        : faker.number.int({ min: 0, max: 3 });
+
+    const eligible =
       post.visibility === Visibility.PUBLIC
         ? users
         : users.filter((u) => u.id === post.authorId);
 
-    const likerCount = faker.number.int({
-      min: 0,
-      max: Math.min(5, eligibleLikers.length),
-    });
-    const likers = faker.helpers.arrayElements(eligibleLikers, likerCount);
-    for (const liker of likers) {
-      tryAddLike(liker.id, TargetType.POST, post.id);
+    const likers = faker.helpers.arrayElements(eligible, likeCount);
+
+    for (const user of likers) {
+      addLike(user.id, post.id);
+    }
+
+    // active user boost
+    for (const user of activeUsers) {
+      if (faker.datatype.boolean(0.5)) {
+        addLike(user.id, post.id);
+      }
     }
   }
 
-  // Comments/replies get lighter like distribution
+  // COMMENT likes
   for (const comment of comments) {
-    const likerCount = faker.number.int({ min: 0, max: 3 });
-    const likers = faker.helpers.arrayElements(users, likerCount);
-    for (const liker of likers) {
-      tryAddLike(liker.id, TargetType.COMMENT, comment.id);
+    const activity = faker.number.float({ min: 0, max: 1 });
+
+    const likeCount =
+      activity > 0.7
+        ? faker.number.int({ min: 2, max: 5 })
+        : activity > 0.3
+        ? faker.number.int({ min: 1, max: 3 })
+        : faker.number.int({ min: 0, max: 1 });
+
+    const likers = faker.helpers.arrayElements(users, likeCount);
+
+    for (const user of likers) {
+      addLike(user.id, undefined, comment.id);
     }
   }
 
-  await prisma.like.createMany({ data: likeData });
+  await prisma.like.createMany({
+    data: likeData,
+  });
 
-  console.log("Seed complete:");
-  console.log(`  Users: ${users.length}`);
-  console.log(`  Posts: ${posts.length}`);
-  console.log(`  Comments/Replies: ${comments.length}`);
-  console.log(`  Likes: ${likeData.length}`);
-  console.log(`\nAll seeded users share the password: ${DEFAULT_PASSWORD}`);
+  console.log("\n✅ Seed completed successfully");
+  console.log(`Users: ${users.length}`);
+  console.log(`Posts: ${posts.length}`);
+  console.log(`Comments: ${comments.length}`);
+  console.log(`Likes: ${likeData.length}`);
+  console.log(`Password: ${DEFAULT_PASSWORD}`);
 }
 
 main()

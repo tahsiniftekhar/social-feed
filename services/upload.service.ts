@@ -1,6 +1,10 @@
-export async function uploadImage(file: File) {
-  const formData = new FormData();
+type UploadedImage = {
+  secure_url: string;
+  public_id: string;
+};
 
+export async function uploadImage(file: File): Promise<UploadedImage> {
+  const formData = new FormData();
   formData.append("image", file);
 
   const response = await fetch("/api/upload", {
@@ -14,5 +18,5 @@ export async function uploadImage(file: File) {
     throw new Error(result.message);
   }
 
-  return result.data;
+  return result.data as UploadedImage;
 }

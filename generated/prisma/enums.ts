@@ -15,11 +15,3 @@ export const Visibility = {
 } as const
 
 export type Visibility = (typeof Visibility)[keyof typeof Visibility]
-
-
-export const TargetType = {
-  POST: 'POST',
-  COMMENT: 'COMMENT'
-} as const
-
-export type TargetType = (typeof TargetType)[keyof typeof TargetType]

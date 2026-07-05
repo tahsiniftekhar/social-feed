@@ -127,23 +127,6 @@ export type EnumVisibilityWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumVisibilityFilter<$PrismaModel>
 }
 
-export type EnumTargetTypeFilter<$PrismaModel = never> = {
-  equals?: $Enums.TargetType | Prisma.EnumTargetTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTargetTypeFilter<$PrismaModel> | $Enums.TargetType
-}
-
-export type EnumTargetTypeWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.TargetType | Prisma.EnumTargetTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTargetTypeWithAggregatesFilter<$PrismaModel> | $Enums.TargetType
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumTargetTypeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumTargetTypeFilter<$PrismaModel>
-}
-
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -268,23 +251,6 @@ export type NestedEnumVisibilityWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumVisibilityFilter<$PrismaModel>
   _max?: Prisma.NestedEnumVisibilityFilter<$PrismaModel>
-}
-
-export type NestedEnumTargetTypeFilter<$PrismaModel = never> = {
-  equals?: $Enums.TargetType | Prisma.EnumTargetTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTargetTypeFilter<$PrismaModel> | $Enums.TargetType
-}
-
-export type NestedEnumTargetTypeWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.TargetType | Prisma.EnumTargetTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TargetType[] | Prisma.ListEnumTargetTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTargetTypeWithAggregatesFilter<$PrismaModel> | $Enums.TargetType
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumTargetTypeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumTargetTypeFilter<$PrismaModel>
 }
 
 

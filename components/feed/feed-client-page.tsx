@@ -1,26 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import { FeedPost } from "@/types/post";
+import { useState } from "react";
+import FeedContent from "./feed-content";
 import FeedHeader from "./feed-header";
-import MobileHeader from "./mobile/header";
 import MobileBottomNav from "./mobile/bottom-nav";
+import MobileHeader from "./mobile/header";
 import SidebarLeft from "./sidebar-left";
 import SidebarRight from "./sidebar-right";
-import FeedContent from "./feed-content";
 
 interface FeedClientPageProps {
   user: {
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
-  } | null;
+  };
+
+  initialPosts: FeedPost[];
 }
 
-export default function FeedClientPage({ user }: FeedClientPageProps) {
+export default function FeedClientPage({ user, initialPosts }: FeedClientPageProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [posts, setPosts] = useState(initialPosts);
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => !prev);
+  };
+
+  const handlePostCreated = (post: FeedPost) => {
+    setPosts((prev) => [post, ...prev]);
   };
 
   return (
@@ -43,7 +52,10 @@ export default function FeedClientPage({ user }: FeedClientPageProps) {
             <SidebarLeft />
 
             {/* Feed Middle Column */}
-            <FeedContent />
+            <FeedContent
+              posts={posts}
+              onPostCreated={handlePostCreated}
+            />
 
             {/* Right Sidebar */}
             <SidebarRight />
