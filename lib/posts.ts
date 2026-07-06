@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { FeedPost } from "@/types/post";
 
 interface GetFeedPostsOptions {
   userId: string;
@@ -47,6 +48,15 @@ export async function getFeedPosts({
         },
       },
 
+      likes: {
+        where: {
+          userId,
+        },
+        select: {
+          id: true,
+        },
+      },
+
       _count: {
         select: {
           comments: true,
@@ -63,8 +73,21 @@ export async function getFeedPosts({
     posts.pop();
   }
 
+  const mappedPosts: FeedPost[] = posts.map((post) => ({
+    id: post.id,
+    content: post.content,
+    imageUrl: post.imageUrl,
+    imagePublicId: post.imagePublicId,
+    visibility: post.visibility,
+    createdAt: post.createdAt.toISOString(),
+    author: post.author,
+    likedByCurrentUser: post.likes.length > 0,
+    _count: post._count,
+  }));
+
   return {
-    posts,
+    posts: mappedPosts,
     nextCursor,
   };
 }
+

@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { success, failure } from "@/lib/api-response";
 import { CreatePostSchema } from "@/lib/validators";
 import { getFeedPosts } from "@/lib/posts";
+import { FeedPost } from "@/types/post";
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,7 +50,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return success(post, 201);
+    const formattedPost: FeedPost = {
+      id: post.id,
+      content: post.content,
+      imageUrl: post.imageUrl,
+      imagePublicId: post.imagePublicId,
+      visibility: post.visibility,
+      createdAt: post.createdAt.toISOString(),
+      author: post.author,
+      likedByCurrentUser: false,
+      _count: post._count,
+    };
+
+    return success(formattedPost, 201);
   } catch (error) {
     console.error(error);
 

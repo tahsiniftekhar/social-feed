@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import { likePost, unlikePost } from "@/services/like.service";
+import { FeedPost } from "@/types/post";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import WhoLikedModal from "../who-liked-modal";
 import PostComments from "./post-comments";
-import { FeedPost } from "@/types/post";
 
 interface PostCardProps {
   post: FeedPost;
+  onPostUpdate?: (updatedPost: FeedPost) => void;
 }
 
 function formatTimeAgo(dateString: string) {
@@ -25,16 +28,62 @@ function formatTimeAgo(dateString: string) {
   return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, onPostUpdate }: PostCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [showComments, setShowComments] = useState(true);
+  const [liked, setLiked] = useState(post.likedByCurrentUser);
+  const [likesCount, setLikesCount] = useState(post._count?.likes ?? 0);
+  const [commentsCount, setCommentsCount] = useState(post._count?.comments ?? 0);
+  const [showComments, setShowComments] = useState(false);
+
+  const [likedModalTarget, setLikedModalTarget] = useState<{ postId?: string; commentId?: string } | null>(null);
 
   const authorName = `${post.author.firstName} ${post.author.lastName}`;
   const avatarUrl = "/assets/images/post_img.png";
   const timeAgo = formatTimeAgo(post.createdAt);
-  const likesCount = (post._count?.likes ?? 0) + (isLiked ? 1 : 0);
-  const commentsCount = post._count?.comments ?? 0;
+
+  const handleLikeToggle = async () => {
+    const nextLiked = !liked;
+    const nextLikesCount = nextLiked ? likesCount + 1 : likesCount - 1;
+
+    setLiked(nextLiked);
+    setLikesCount(nextLikesCount);
+
+    try {
+      if (nextLiked) {
+        await likePost(post.id);
+      } else {
+        await unlikePost(post.id);
+      }
+
+      if (onPostUpdate) {
+        onPostUpdate({
+          ...post,
+          likedByCurrentUser: nextLiked,
+          _count: {
+            ...post._count,
+            likes: nextLikesCount,
+          },
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setLiked(!nextLiked);
+      setLikesCount(liked ? likesCount : likesCount);
+    }
+  };
+
+  const handleCommentCountChange = (newCount: number) => {
+    setCommentsCount(newCount);
+    if (onPostUpdate) {
+      onPostUpdate({
+        ...post,
+        _count: {
+          ...post._count,
+          comments: newCount,
+        },
+      });
+    }
+  };
 
   return (
     <div className="_feed_inner_timeline_post_area _b_radious6 _padd_b24 _padd_t24 _mar_b16">
@@ -96,7 +145,7 @@ export default function PostCard({ post }: PostCardProps) {
                   <span className="_feed_timeline_dropdown_link" style={{ cursor: "pointer" }}>
                     <span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 18 18">
-                        <path stroke="#1890FF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M2.25 4.5h13.5M6 4.5V3a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0112 3v1.5m2.25 0V15a1.5 1.5 0 01-1.5 1.5h-7.5a1.5 1.5 0 01-1.5-1.5V4.5h10.5zM7.5 8.25v4.5M10.5 8.25v4.5" />
+                        <path stroke="#1890FF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M2.25 4.5h13.5M6 4.5V3a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0112 3v1.5m2.25 0V15a1.5 1.5 0 01-1.5 1.5h-7.5a1.5 1.5 0 01-1.5 1.5V4.5h10.5zM7.5 8.25v4.5M10.5 8.25v4.5" />
                       </svg>
                     </span>
                     Delete Post
@@ -128,7 +177,13 @@ export default function PostCard({ post }: PostCardProps) {
           <Image src="/assets/images/react_img1.png" alt="Like" width={18} height={18} className="_react_img1" />
           <Image src="/assets/images/react_img2.png" alt="Love" width={18} height={18} className="_react_img" />
           <Image src="/assets/images/react_img3.png" alt="Haha" width={18} height={18} className="_react_img _rect_img_mbl_none" />
-          <p className="_feed_inner_timeline_total_reacts_para">{likesCount}</p>
+          <p
+            className="_feed_inner_timeline_total_reacts_para"
+            style={{ cursor: "pointer", userSelect: "none" }}
+            onClick={() => setLikedModalTarget({ postId: post.id })}
+          >
+            {likesCount}
+          </p>
         </div>
         <div className="_feed_inner_timeline_total_reacts_txt">
           <p className="_feed_inner_timeline_total_reacts_para1" onClick={() => setShowComments(!showComments)} style={{ cursor: "pointer" }}>
@@ -143,19 +198,17 @@ export default function PostCard({ post }: PostCardProps) {
       {/* Reaction Buttons */}
       <div className="_feed_inner_timeline_reaction">
         <button
-          className={`_feed_inner_timeline_reaction_emoji _feed_reaction ${isLiked ? "_feed_reaction_active" : ""}`}
-          onClick={() => setIsLiked(!isLiked)}
+          className={`_feed_inner_timeline_reaction_emoji _feed_reaction ${liked ? "_feed_reaction_active" : ""}`}
+          onClick={handleLikeToggle}
         >
-          <span className="_feed_inner_timeline_reaction_link">
-            <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 19 19">
-                <path fill="#FFCC4D" d="M9.5 19a9.5 9.5 0 100-19 9.5 9.5 0 000 19z" />
-                <path fill="#664500" d="M9.5 11.083c-1.912 0-3.181-.222-4.75-.527-.358-.07-1.056 0-1.056 1.055 0 2.111 2.425 4.75 5.806 4.75 3.38 0 5.805-2.639 5.805-4.75 0-1.055-.697-1.125-1.055-1.055-1.57.305-2.838.527-4.75.527z" />
-                <path fill="#fff" d="M4.75 11.611s1.583.528 4.75.528 4.75-.528 4.75-.528-1.056 2.111-4.75 2.111-4.75-2.11-4.75-2.11z" />
-                <path fill="#664500" d="M6.333 8.972c.729 0 1.32-.827 1.32-1.847s-.591-1.847-1.32-1.847c-.729 0-1.32.827-1.32 1.847s.591 1.847 1.32 1.847zM12.667 8.972c.729 0 1.32-.827 1.32-1.847s-.591-1.847-1.32-1.847c-.729 0-1.32.827-1.32 1.847s.591 1.847 1.32 1.847z" />
-              </svg>
-              Haha
-            </span>
+          <span className="_feed_inner_timeline_reaction_link d-inline-flex align-items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 19 19">
+              <path fill="#FFCC4D" d="M9.5 19a9.5 9.5 0 100-19 9.5 9.5 0 000 19z" />
+              <path fill="#664500" d="M9.5 11.083c-1.912 0-3.181-.222-4.75-.527-.358-.07-1.056 0-1.056 1.055 0 2.111 2.425 4.75 5.806 4.75 3.38 0 5.805-2.639 5.805-4.75 0-1.055-.697-1.125-1.055-1.055-1.57.305-2.838.527-4.75.527z" />
+              <path fill="#fff" d="M4.75 11.611s1.583.528 4.75.528 4.75-.528 4.75-.528-1.056 2.111-4.75 2.111-4.75-2.11-4.75-2.11z" />
+              <path fill="#664500" d="M6.333 8.972c.729 0 1.32-.827 1.32-1.847s-.591-1.847-1.32-1.847c-.729 0-1.32.827-1.32 1.847s.591 1.847 1.32 1.847zM12.667 8.972c.729 0 1.32-.827 1.32-1.847s-.591-1.847-1.32-1.847c-.729 0-1.32.827-1.32 1.847s.591 1.847 1.32 1.847z" />
+            </svg>
+            {liked ? "Liked" : "Like"}
           </span>
         </button>
         <button
@@ -185,8 +238,22 @@ export default function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* Render comments section if showComments is true */}
-      {showComments && <PostComments />}
+      {showComments && (
+        <PostComments
+          postId={post.id}
+          onCommentCountChange={handleCommentCountChange}
+          onOpenWhoLiked={(commentId) => setLikedModalTarget({ commentId })}
+        />
+      )}
+
+      {/* Reusable WhoLikedModal */}
+      {likedModalTarget !== null && (
+        <WhoLikedModal
+          postId={likedModalTarget.postId}
+          commentId={likedModalTarget.commentId}
+          onClose={() => setLikedModalTarget(null)}
+        />
+      )}
     </div>
   );
 }
-
