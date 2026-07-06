@@ -27,6 +27,13 @@ npm run dev
 
 Seeded accounts all use the password `Passw0rd!` (see `prisma/seed.ts` for emails).
 
+## Testing
+
+Run the integration smoke test suite against the local development server (or set `BASE_URL` to target a custom deployment):
+```bash
+node scripts/smoke-test.mjs
+```
+
 ## Architecture
 
 Next.js App Router handles both rendering and the API. The feed page is a Server
@@ -100,7 +107,7 @@ feed query, read replicas, and moving image processing to a background queue.
   production version would wrap it in `$transaction` or catch the `P2002` unique
   violation.
 - No rate limiting on login/register.
-- No automated test suite beyond the smoke-test script in `/scripts` — see below.
+- No automated test suite beyond the integration smoke-test script (see Testing section).
 
 ## Tradeoffs
 
