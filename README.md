@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Social Feed — Full-Stack Assessment
 
-## Getting Started
+A social feed application built for the AppifyLab Full Stack Developer assessment,
+converting the provided Login/Register/Feed templates into a working Next.js app
+with authentication, posts, comments, replies, and likes.
 
-First, run the development server:
+**Live:** https://social-feed-chi.vercel.app
+
+
+## Stack
+
+- **Next.js 16 (App Router)** — frontend + API routes in one deployable unit
+- **PostgreSQL (Neon)** via **Prisma ORM** with the driver-adapter client
+- **JWT in httpOnly cookies** for auth
+- **Cloudinary** for image storage
+- **Zod** for request validation
+
+## Running locally
 
 ```bash
+npm install
+cp .env.example .env   # fill in DATABASE_URL, JWT_SECRET, Cloudinary keys
+npx prisma migrate dev
+npm run seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Seeded accounts all use the password `Passw0rd!` (see `prisma/seed.ts` for emails).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js App Router handles both rendering and the API. The feed page is a Server
+Component that queries Postgres directly on first load (no client-side loading
+spinner for the initial feed); post creation, likes, and comments are Client
+Components using `fetch` against route handlers under `app/api/`.
+```bash
+Browser → Next.js middleware (JWT cookie check)
+→ Route handlers (Zod validation)
+→ Prisma
+→ PostgreSQL (Neon)
+```
 
-## Learn More
+## Data model
 
-To learn more about Next.js, take a look at the following resources:
+- `User`, `Post`, `Comment`, `Like` — see `prisma/schema.prisma` for the full schema.
+- Replies reuse the `Comment` table via a nullable self-referencing `parentCommentId`,
+  rather than a separate `Reply` table — one table, one set of like/author logic.
+- `Like` uses two nullable foreign keys (`postId`, `commentId`) rather than a
+  polymorphic `targetType/targetId` pair, so Postgres can enforce real foreign-key
+  cascades and Prisma can express the relation natively. A `CHECK` constraint
+  enforces exactly one of the two is set.
+- Indexes: `Post(createdAt DESC)`, `Post(visibility, createdAt DESC)` for the feed
+  query, `Comment(postId)`, `Comment(parentCommentId)`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security decisions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Passwords hashed with bcrypt (cost factor 12).
+- JWT stored in an httpOnly, Secure, SameSite=Lax cookie — not localStorage — to
+  keep it inaccessible to XSS.
+- Private-post visibility is enforced at the query layer (`WHERE visibility =
+  'PUBLIC' OR authorId = :userId`), not filtered client-side.
+- Requests for a private post/comment the caller can't access return `404`, not
+  `403` — this avoids confirming the resource exists to an unauthorized caller.
+- All mutation payloads validated with Zod before hitting Prisma.
 
-## Deploy on Vercel
+## Scaling considerations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Built assuming a large, growing table rather than a fixed demo dataset:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Cursor-based pagination on the feed (`cursor: { id }`) instead of `OFFSET`, so
+  query cost doesn't grow with page depth.
+- Composite index `(visibility, createdAt DESC)` matches the actual feed query
+  shape rather than indexing each column independently.
+- Like counts and "did I like this" checks are done via Prisma `_count` / joined
+  queries, not N+1 loops per post.
+
+Not implemented, but the next steps at real scale: a Redis cache in front of the
+feed query, read replicas, and moving image processing to a background queue.
+
+## API
+
+| Endpoint | Method | Auth | Notes |
+|---|---|---|---|
+| `/api/auth/register` | POST | — | |
+| `/api/auth/login` | POST | — | |
+| `/api/auth/logout` | POST | ✓ | |
+| `/api/auth/me` | GET | ✓ | |
+| `/api/posts` | GET | ✓ | `?cursor=` |
+| `/api/posts` | POST | ✓ | |
+| `/api/posts/[postId]/comments` | GET/POST | ✓ | |
+| `/api/comments/[commentId]/replies` | POST | ✓ | |
+| `/api/likes` | POST/DELETE | ✓ | `{ postId? , commentId? }` |
+| `/api/likes` | GET | ✓ | who liked |
+| `/api/upload` | POST | ✓ | signed Cloudinary upload |
+
+## Known limitations
+
+- Like toggling isn't wrapped in a transaction, so two near-simultaneous requests
+  from the same user could theoretically race. Acceptable for this scope; a
+  production version would wrap it in `$transaction` or catch the `P2002` unique
+  violation.
+- No rate limiting on login/register.
+- No automated test suite beyond the smoke-test script in `/scripts` — see below.
+
+## Tradeoffs
+
+**Next.js route handlers over a separate Express backend** — one deployable,
+shared types between client and API, no CORS config. Tradeoff: serverless cold
+starts vs. a long-running Express process.
+
+**Self-referencing `Comment` table over a separate `Reply` table** — less
+duplicated logic for likes/authorship. Tradeoff: deeper nesting than 2 levels
+would need a recursive query, not implemented here since the brief only requires
+comments + one level of replies.
