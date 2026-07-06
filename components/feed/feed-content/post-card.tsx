@@ -4,29 +4,37 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PostComments from "./post-comments";
+import { FeedPost } from "@/types/post";
 
 interface PostCardProps {
-  author: string;
-  avatar: string;
-  timeAgo: string;
-  title: string;
-  image: string;
-  commentsCount: number;
-  sharesCount: number;
+  post: FeedPost;
 }
 
-export default function PostCard({
-  author,
-  avatar,
-  timeAgo,
-  title,
-  image,
-  commentsCount,
-  sharesCount,
-}: PostCardProps) {
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHour / 24);
+
+  if (diffSec < 60) return "Just now";
+  if (diffMin < 60) return `${diffMin} minute${diffMin > 1 ? "s" : ""} ago`;
+  if (diffHour < 24) return `${diffHour} hour${diffHour > 1 ? "s" : ""} ago`;
+  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+}
+
+export default function PostCard({ post }: PostCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(true);
+
+  const authorName = `${post.author.firstName} ${post.author.lastName}`;
+  const avatarUrl = "/assets/images/post_img.png";
+  const timeAgo = formatTimeAgo(post.createdAt);
+  const likesCount = (post._count?.likes ?? 0) + (isLiked ? 1 : 0);
+  const commentsCount = post._count?.comments ?? 0;
 
   return (
     <div className="_feed_inner_timeline_post_area _b_radious6 _padd_b24 _padd_t24 _mar_b16">
@@ -35,12 +43,12 @@ export default function PostCard({
         <div className="_feed_inner_timeline_post_top">
           <div className="_feed_inner_timeline_post_box">
             <div className="_feed_inner_timeline_post_box_image">
-              <Image src={avatar} alt={author} width={44} height={44} className="_post_img" />
+              <Image src={avatarUrl} alt={authorName} width={44} height={44} className="_post_img" />
             </div>
             <div className="_feed_inner_timeline_post_box_txt">
-              <h4 className="_feed_inner_timeline_post_box_title">{author}</h4>
+              <h4 className="_feed_inner_timeline_post_box_title">{authorName}</h4>
               <p className="_feed_inner_timeline_post_box_para">
-                {timeAgo} . <Link href="#0">Public</Link>
+                {timeAgo} . <Link href="#0">{post.visibility === "PUBLIC" ? "Public" : "Private"}</Link>
               </p>
             </div>
           </div>
@@ -99,17 +107,19 @@ export default function PostCard({
           </div>
         </div>
 
-        <h4 className="_feed_inner_timeline_post_title">{title}</h4>
-        <div className="_feed_inner_timeline_image" style={{ position: "relative" }}>
-          <Image
-            src={image}
-            alt="Timeline cover"
-            width={600}
-            height={395}
-            className="_time_img"
-            style={{ width: "100%", height: "auto" }}
-          />
-        </div>
+        <h4 className="_feed_inner_timeline_post_title">{post.content}</h4>
+        {post.imageUrl && (
+          <div className="_feed_inner_timeline_image" style={{ position: "relative" }}>
+            <Image
+              src={post.imageUrl}
+              alt="Timeline cover"
+              width={600}
+              height={395}
+              className="_time_img"
+              style={{ width: "100%", height: "auto" }}
+            />
+          </div>
+        )}
       </div>
 
       {/* React totals count bar */}
@@ -118,14 +128,14 @@ export default function PostCard({
           <Image src="/assets/images/react_img1.png" alt="Like" width={18} height={18} className="_react_img1" />
           <Image src="/assets/images/react_img2.png" alt="Love" width={18} height={18} className="_react_img" />
           <Image src="/assets/images/react_img3.png" alt="Haha" width={18} height={18} className="_react_img _rect_img_mbl_none" />
-          <p className="_feed_inner_timeline_total_reacts_para">{isLiked ? "10+" : "9+"}</p>
+          <p className="_feed_inner_timeline_total_reacts_para">{likesCount}</p>
         </div>
         <div className="_feed_inner_timeline_total_reacts_txt">
           <p className="_feed_inner_timeline_total_reacts_para1" onClick={() => setShowComments(!showComments)} style={{ cursor: "pointer" }}>
             <span>{commentsCount}</span> Comment
           </p>
           <p className="_feed_inner_timeline_total_reacts_para2">
-            <span>{sharesCount}</span> Share
+            <span>0</span> Share
           </p>
         </div>
       </div>
@@ -179,3 +189,4 @@ export default function PostCard({
     </div>
   );
 }
+
