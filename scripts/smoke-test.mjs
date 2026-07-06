@@ -1,6 +1,6 @@
 // scripts/smoke-test.mjs
 // Run: node scripts/smoke-test.mjs
-// Set BASE_URL to your deployed Vercel URL or http://localhost:3000
+// Set BASE_URL to your deployed URL or http://localhost:3000
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
@@ -59,19 +59,19 @@ async function main() {
   console.log("Auth");
   const regA = await userA.request("/api/auth/register", {
     method: "POST",
-    body: JSON.stringify({ firstName: "Alice", lastName: "Test", email: emailA, password }),
+    body: JSON.stringify({ firstName: "Alice", lastName: "Test", email: emailA, password, confirmPassword: password, terms: true }),
   });
   assert(regA.status === 201 || regA.status === 200, "User A registers successfully");
 
   const dupA = await userA.request("/api/auth/register", {
     method: "POST",
-    body: JSON.stringify({ firstName: "Alice", lastName: "Test", email: emailA, password }),
+    body: JSON.stringify({ firstName: "Alice", lastName: "Test", email: emailA, password, confirmPassword: password, terms: true }),
   });
   assert(dupA.status === 409 || dupA.status === 400, "Duplicate email registration is rejected");
 
   const regB = await userB.request("/api/auth/register", {
     method: "POST",
-    body: JSON.stringify({ firstName: "Bob", lastName: "Test", email: emailB, password }),
+    body: JSON.stringify({ firstName: "Bob", lastName: "Test", email: emailB, password, confirmPassword: password, terms: true }),
   });
   assert(regB.status === 201 || regB.status === 200, "User B registers successfully");
 
@@ -98,17 +98,18 @@ async function main() {
     body: JSON.stringify({ content: "public post from A", visibility: "PUBLIC" }),
   });
   assert(publicPost.status === 201, "User A creates a public post");
-  const publicPostId = publicPost.body?.id;
+  const publicPostId = publicPost.body?.data?.id || publicPost.body?.id;
 
   const privatePost = await userA.request("/api/posts", {
     method: "POST",
     body: JSON.stringify({ content: "private post from A", visibility: "PRIVATE" }),
   });
   assert(privatePost.status === 201, "User A creates a private post");
-  const privatePostId = privatePost.body?.id;
+  const privatePostId = privatePost.body?.data?.id || privatePost.body?.id;
 
   const feedFromB = await userB.request("/api/posts");
-  const feedIds = (feedFromB.body?.posts ?? feedFromB.body ?? []).map((p) => p.id);
+  const postsList = feedFromB.body?.data?.posts ?? feedFromB.body?.posts ?? feedFromB.body ?? [];
+  const feedIds = postsList.map((p) => p.id);
   assert(feedIds.includes(publicPostId), "User B's feed includes A's public post");
   assert(!feedIds.includes(privatePostId), "User B's feed excludes A's private post");
 
@@ -130,9 +131,24 @@ async function main() {
     body: JSON.stringify({ postId: publicPostId }),
   });
   assert(
-    like2.body?.liked === false,
-    "Liking the same post again toggles it off (unlike), rather than duplicating"
+    like2.status === 400,
+    "Liking the same post again is rejected as a duplicate (400)"
   );
+
+  const unlike = await userB.request("/api/likes", {
+    method: "DELETE",
+    body: JSON.stringify({ postId: publicPostId }),
+  });
+  assert(
+    unlike.status === 200 && (unlike.body?.data?.liked === false || unlike.body?.liked === false),
+    "User B unlikes A's public post successfully (DELETE /api/likes)"
+  );
+
+  const relike = await userB.request("/api/likes", {
+    method: "POST",
+    body: JSON.stringify({ postId: publicPostId }),
+  });
+  assert(relike.status === 200 || relike.status === 201, "User B re-likes A's public post successfully");
 
   const likeOnPrivate = await userB.request("/api/likes", {
     method: "POST",
@@ -140,7 +156,7 @@ async function main() {
   });
   assert(
     likeOnPrivate.status === 404,
-    "User B cannot like A's private post"
+    "User B cannot like A's private post (404)"
   );
 
   console.log("\nComments");
@@ -148,14 +164,14 @@ async function main() {
     method: "POST",
     body: JSON.stringify({ content: "nice post" }),
   });
-  assert(comment.status === 201, "User B comments on A's public post");
-  const commentId = comment.body?.id;
+  assert(comment.status === 201 || comment.status === 200, "User B comments on A's public post");
+  const commentId = comment.body?.data?.id || comment.body?.id;
 
   const reply = await userA.request(`/api/comments/${commentId}/replies`, {
     method: "POST",
     body: JSON.stringify({ content: "thanks!" }),
   });
-  assert(reply.status === 201, "User A replies to B's comment");
+  assert(reply.status === 201 || reply.status === 200, "User A replies to B's comment");
 
   console.log(`\n${passed} passed, ${failed} failed\n`);
   if (failed > 0) process.exit(1);

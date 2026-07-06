@@ -31,7 +31,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     if (post.visibility === "PRIVATE" && post.authorId !== user.id) {
-      return failure("Access Denied", 403);
+      return failure("Post not found", 404);
     }
 
     const comments = await prisma.comment.findMany({
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     }
 
     if (post.visibility === "PRIVATE" && post.authorId !== user.id) {
-      return failure("Access Denied", 403);
+      return failure("Post not found", 404);
     }
 
     const body = await req.json();

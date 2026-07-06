@@ -33,7 +33,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     }
 
     if (parentComment.post.visibility === "PRIVATE" && parentComment.post.authorId !== user.id) {
-      return failure("Access Denied", 403);
+      return failure("Parent comment not found", 404);
     }
 
     const body = await req.json();

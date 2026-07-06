@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       }
 
       if (post.visibility === "PRIVATE" && post.authorId !== user.id) {
-        return failure("Access Denied", 403);
+        return failure("Post not found", 404);
       }
 
       const likes = await prisma.like.findMany({
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       }
 
       if (comment.post.visibility === "PRIVATE" && comment.post.authorId !== user.id) {
-        return failure("Access Denied", 403);
+        return failure("Comment not found", 404);
       }
 
       const likes = await prisma.like.findMany({
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (post.visibility === "PRIVATE" && post.authorId !== user.id) {
-        return failure("Access Denied", 403);
+        return failure("Post not found", 404);
       }
 
       const existing = await prisma.like.findUnique({
